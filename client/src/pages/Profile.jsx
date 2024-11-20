@@ -134,6 +134,23 @@ export default function Profile() {
       setShowListingsError(true);
     }
   };
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   return (
     <div className="h-screen flex justify-center mt-3 ">
       <div className="card bg-base-100 sm:w-[40%] w-[80%] h-fit pb-5 shadow-xl px-3">
@@ -285,7 +302,10 @@ export default function Profile() {
                   />
                 </Link>
                 <div className=" flex flex-col justify-between py-12 gap-7">
-                  <TiDeleteOutline className=" size-12  rounded-md text-red-700 cursor-pointer hover:bg-red-100 p-1" />
+                  <TiDeleteOutline
+                    onClick={() => handleListingDelete(list._id)}
+                    className=" size-12  rounded-md text-red-700 cursor-pointer hover:bg-red-100 p-1"
+                  />
                   <CiEdit className=" size-12 rounded-md p-2 text-blue-700 cursor-pointer hover:bg-blue-100 " />
                 </div>
               </div>
