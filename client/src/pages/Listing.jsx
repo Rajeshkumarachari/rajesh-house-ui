@@ -4,15 +4,17 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
+import { CiMail } from "react-icons/ci";
 import {
   FaBath,
   FaBed,
   FaChair,
-  FaMapMarkedAlt,
   FaMapMarkerAlt,
   FaParking,
   FaShare,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import Contact from "../components/Contact";
 // https://sabe.io/blog/javascript-format-numbers-commas#:~:text=The%20best%20way%20to%20format,format%20the%20number%20with%20commas.
 
 export default function Listing() {
@@ -22,6 +24,8 @@ export default function Listing() {
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
   const params = useParams();
+  const [contact, setContact] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -37,13 +41,13 @@ export default function Listing() {
         setLoading(false);
         setError(false);
       } catch (error) {
+        console.log(error);
         setError(true);
         setLoading(false);
       }
     };
     fetchListing();
   }, [params.listingId]);
-  console.log(loading);
 
   return (
     <main className=" h-fit pb-4">
@@ -154,6 +158,16 @@ export default function Listing() {
                 {listing.furnished ? "Furnished" : "Unfurnished"}
               </li>
             </ul>
+            {currentUser && listing.userRef !== currentUser._id && !contact && (
+              <button
+                onClick={() => setContact(true)}
+                className=" bg-slate-700 text-white  rounded-lg hover:opacity-95 p-3 flex justify-center "
+              >
+                Contact Landlord
+                <CiMail className=" flex justify-center items-center ml-2   size-6" />
+              </button>
+            )}
+            {contact && <Contact listing={listing} />}
           </div>
         </div>
       )}
