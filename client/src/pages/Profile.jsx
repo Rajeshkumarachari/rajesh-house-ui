@@ -306,7 +306,9 @@ export default function Profile() {
                     onClick={() => handleListingDelete(list._id)}
                     className=" size-12  rounded-md text-red-700 cursor-pointer hover:bg-red-100 p-1"
                   />
-                  <CiEdit className=" size-12 rounded-md p-2 text-blue-700 cursor-pointer hover:bg-blue-100 " />
+                  <Link to={`/update-listing/${list._id}`}>
+                    <CiEdit className=" size-12 rounded-md p-2 text-blue-700 cursor-pointer hover:bg-blue-100 " />
+                  </Link>
                 </div>
               </div>
             ))}
