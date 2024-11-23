@@ -1,9 +1,28 @@
+import { useEffect, useState } from "react";
 import logo from "../assets/bnb.png";
 import { GrSearch } from "react-icons/gr";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("searchTerm", searchTerm);
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+    }
+  }, [location.search]);
   return (
     <header className=" bg-slate-100 shadow-md">
       <div className=" flex justify-between items-center max-w-6xl mx-auto p-3">
@@ -15,13 +34,20 @@ export default function Header() {
             </h1>
           </div>
         </Link>
-        <form className=" bg-slate-50 px-3  rounded-3xl flex ">
+        <form
+          onSubmit={handleSubmit}
+          className=" bg-slate-50 px-3  rounded-3xl flex "
+        >
           <input
             type="text"
             placeholder="Search destinations"
             className=" bg-transparent focus:outline-none w-24 sm:w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <GrSearch className=" size-11 rounded-full text-white bg-rose-500 p-3" />
+          <button className=" cursor-pointer">
+            <GrSearch className=" size-11 rounded-full text-white bg-rose-500 p-3" />
+          </button>
         </form>
         <ul className=" flex text-lg font-normal ">
           <Link
