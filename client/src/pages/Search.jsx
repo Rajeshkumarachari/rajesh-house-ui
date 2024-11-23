@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ListingItem from "../components/ListingItem";
 import { useNavigate, useLocation } from "react-router-dom";
+import ShimmerEffect from "../components/ShimmerEffect";
 
 export default function Search() {
   const [sidebardata, setSidebardata] = useState({
@@ -16,7 +17,7 @@ export default function Search() {
   const [listings, setListings] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
-  // console.log("sidebardata->  ", sidebardata);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -49,11 +50,17 @@ export default function Search() {
     const fetchListings = async () => {
       try {
         setLoading(true);
+        setShowMore(false);
         const searchQuery = urlParams;
         const res = await fetch(`/api/listing/get?${searchQuery}`);
         const data = await res.json();
         setListings(data);
         setLoading(false);
+        if (data.length > 8) {
+          setShowMore(true);
+        } else {
+          setShowMore(false);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -101,6 +108,19 @@ export default function Search() {
     urlParams.set("order", sidebardata.order);
     const searchQuery = urlParams;
     navigate(`/search?${searchQuery}`);
+  };
+  const onShowMoreClick = async () => {
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(`/api/listing/get?${searchQuery}`);
+    const data = await res.json();
+    if (data.length < 9) {
+      setShowMore(false);
+    }
+    setListings([...listings, ...data]);
   };
   return (
     <div className=" flex flex-col md:flex-row">
@@ -231,7 +251,10 @@ export default function Search() {
             </div>
           )}
           {loading && (
-            <span className="loading loading-spinner text-error size-10 mt-3 mx-5"></span>
+            <div className="">
+              <span className="loading loading-spinner text-error size-10 mt-3 mx-5"></span>
+              <ShimmerEffect />
+            </div>
           )}
 
           {!loading &&
@@ -244,6 +267,14 @@ export default function Search() {
               />
             ))}
         </div>
+        {showMore && (
+          <button
+            className=" text-lg font-semibold mx-5 my-4 w-full text-center  text-blue-800 hover:underline"
+            onClick={onShowMoreClick}
+          >
+            Show more
+          </button>
+        )}
       </div>
     </div>
   );
