@@ -51,7 +51,7 @@ export default function Header() {
         </form>
         <ul className=" flex text-lg font-normal ">
           <Link
-            to="/home"
+            to="/"
             className=" hidden sm:inline hover:bg-slate-200 hover:underline p-2 cursor-pointer rounded-lg"
           >
             <li>Home</li>
