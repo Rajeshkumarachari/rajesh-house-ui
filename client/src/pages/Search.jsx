@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import ListingItem from "../components/ListingItem";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Search() {
   const [sidebardata, setSidebardata] = useState({
@@ -8,13 +9,14 @@ export default function Search() {
     parking: false,
     furnished: false,
     offer: false,
-    sort: "createdAt",
+    sort: "created_at",
     order: "desc",
   });
   const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([]);
   const navigate = useNavigate();
-  console.log("listings->", listings);
+  const location = useLocation();
+  // console.log("sidebardata->  ", sidebardata);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -45,12 +47,16 @@ export default function Search() {
       });
     }
     const fetchListings = async () => {
-      setLoading(true);
-      const searchQuery = urlParams.toString();
-      const res = await fetch(`/api/listing/get?${searchQuery}`);
-      const data = await res.json();
-      setListings(data);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const searchQuery = urlParams;
+        const res = await fetch(`/api/listing/get?${searchQuery}`);
+        const data = await res.json();
+        setListings(data);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchListings();
   }, [location.search]);
@@ -93,8 +99,8 @@ export default function Search() {
     urlParams.set("offer", sidebardata.offer);
     urlParams.set("sort", sidebardata.sort);
     urlParams.set("order", sidebardata.order);
-    const searchQuery = urlParams.toString();
-    navigate(`/search?/${searchQuery}`);
+    const searchQuery = urlParams;
+    navigate(`/search?${searchQuery}`);
   };
   return (
     <div className=" flex flex-col md:flex-row">
@@ -102,12 +108,11 @@ export default function Search() {
         <form onSubmit={handleSubmit} className=" flex flex-col gap-8">
           <div className="">
             <label className="input input-bordered flex items-center gap-2 w-fit">
-              Search Term :
               <input
                 type="text"
                 className="grow"
                 id="searchTerm"
-                value={setSidebardata.searchTerm}
+                value={sidebardata.searchTerm}
                 onChange={handleChange}
               />
             </label>
@@ -117,54 +122,42 @@ export default function Search() {
             <div className=" flex gap-2">
               <input
                 type="checkbox"
-                defaultChecked
                 className="checkbox checkbox-info"
                 id="all"
                 checked={sidebardata.type === "all"}
                 onChange={handleChange}
               />
-              <label htmlFor="all" className=" cursor-pointer">
-                Rent & Sale
-              </label>
+              <label className=" cursor-pointer">Rent & Sale</label>
             </div>
             <div className=" flex gap-2">
               <input
                 type="checkbox"
-                defaultChecked
                 className="checkbox checkbox-info"
                 id="rent"
                 checked={sidebardata.type === "rent"}
                 onChange={handleChange}
               />
-              <label htmlFor="rent" className=" cursor-pointer">
-                Rent
-              </label>
+              <label className=" cursor-pointer">Rent</label>
             </div>
             <div className=" flex gap-2">
               <input
                 type="checkbox"
-                defaultChecked
                 className="checkbox checkbox-info"
                 id="sale"
                 checked={sidebardata.type === "sale"}
                 onChange={handleChange}
               />
-              <label htmlFor="sale" className=" cursor-pointer">
-                Sale
-              </label>
+              <label className=" cursor-pointer">Sale</label>
             </div>
             <div className=" flex gap-2">
               <input
                 type="checkbox"
-                defaultChecked
                 className="checkbox checkbox-info"
                 id="offer"
                 checked={sidebardata.offer}
                 onChange={handleChange}
               />
-              <label htmlFor="offer" className=" cursor-pointer">
-                Offer
-              </label>
+              <label className=" cursor-pointer">Offer</label>
             </div>
           </div>
           <div className=" flex gap-2 flex-wrap items-center">
@@ -172,28 +165,22 @@ export default function Search() {
             <div className=" flex gap-2">
               <input
                 type="checkbox"
-                defaultChecked
                 className="checkbox checkbox-info"
                 onChange={handleChange}
                 checked={sidebardata.parking}
                 id="parking"
               />
-              <label htmlFor="all" className=" cursor-pointer">
-                Parking
-              </label>
+              <label className=" cursor-pointer">Parking</label>
             </div>
             <div className=" flex gap-2">
               <input
                 type="checkbox"
-                defaultChecked
                 className="checkbox checkbox-info"
                 id="furnished"
                 onChange={handleChange}
                 checked={sidebardata.furnished}
               />
-              <label htmlFor="rent" className=" cursor-pointer">
-                Furnished
-              </label>
+              <label className=" cursor-pointer">Furnished</label>
             </div>
           </div>
           <div className="">
@@ -201,7 +188,7 @@ export default function Search() {
               onChange={handleChange}
               className="select select-info w-full max-w-xs"
               id="sort_order"
-              defaultValue="created_at_desc"
+              defaultValue={"created_at_desc"}
             >
               <option disabled selected>
                 Sort :
@@ -218,9 +205,45 @@ export default function Search() {
         </form>
       </div>
       <div className=" ">
-        <h1 className=" sm:text-2xl text-xl p-3 font-semibold  mt-5">
+        <h1 className=" sm:text-2xl text-xl font-semibold p-3 ">
           Listing results :
         </h1>
+        <div className="sm:mx-2 mx-24  flex flex-wrap gap-4 ">
+          {!loading && listings.length === 0 && (
+            <div
+              role="alert"
+              className="alert alert-info flex  items-center ml-5"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                className="h-6 w-6 shrink-0 stroke-current"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <span>No Listing found for you search. Try with new word</span>
+            </div>
+          )}
+          {loading && (
+            <span className="loading loading-spinner text-error size-10 mt-3 mx-5"></span>
+          )}
+
+          {!loading &&
+            listings &&
+            listings.map((listing) => (
+              <ListingItem
+                className="flex flex-col flex-wrap gap-2"
+                key={listing._id}
+                listing={listing}
+              />
+            ))}
+        </div>
       </div>
     </div>
   );

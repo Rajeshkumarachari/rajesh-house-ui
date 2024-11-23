@@ -1,4 +1,5 @@
 {loading && (
+
 <div className="flex w-full justify-center py-10">
 <span className="loading loading-spinner text-error size-12 "></span>
 </div>
@@ -24,3 +25,7 @@
           </div>
         </div>
       )}
+
+₹
+/search?searchTerm=ts&type=rent&parking=false&furnished=false&offer=false&sort=createdAt&order=desc
+/search?searchTerm=ts&type=all&parking=false&furnished=false&offer=false&sort=created_at&order=desc
